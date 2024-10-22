@@ -4,21 +4,28 @@ import { hoursClick } from "./hours-click.js"
 
 const hours = document.getElementById("hours")
 
-export function hoursLoad({date}) {
+export function hoursLoad({date, dailySchedules}) {
     //clear the schedule list
     hours.innerHTML = ""
     
+    //get the list of all busy times
+    const unavailableHours = dailySchedules.map((schedule) => 
+        dayjs(schedule.when).format("HH:mm")
+    )
+
     const opening = openingHours.map ((hour) => {
         //recovers only the time
         const [schedulesHour] = hour.split(":")
 
         //add time to date and check if it is in the past
-        const isHourPast = dayjs(date).add(schedulesHour, "hour").isAfter(dayjs())
+        const isHourPast = dayjs(date).add(schedulesHour, "hour").isBefore(dayjs())
+
+        const available = !unavailableHours.includes(hour) && !isHourPast
        
         //defines whether the time is available
         return {
             hour,
-            available: isHourPast,
+            available,
         }
     })
     // render the timetable
